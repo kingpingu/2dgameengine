@@ -11,7 +11,7 @@ AssetManager* Game::assetManager = new AssetManager(&manager);
 SDL_Renderer* Game::renderer;
 
 Game::Game() {
-	this->isRunning = false;
+	isRunning = false;
 }
 
 Game::~Game() {
@@ -19,7 +19,7 @@ Game::~Game() {
 }
 
 bool Game::getIsRunning() const {
-	return this->isRunning;
+	return isRunning;
 }
 
 void Game::initialize(int width, int height) {
@@ -55,12 +55,16 @@ void Game::initialize(int width, int height) {
 }
 
 void Game::loadLevel(int levelNumber) {
-	std::string textureFilePath = "./assets/images/tank-big-right.png";
-	assetManager->addTexture("tank-image", textureFilePath.c_str());
+	assetManager->addTexture("tank-image", std::string("./assets/images/tank-big-right.png").c_str());
+	assetManager->addTexture("chopper-image", std::string("./assets/images/chopper-spritesheet.png").c_str());
 	
-	Entity& newEntity(manager.addEntity("tank"));
-	newEntity.addComponent<TransformComponent>(0, 0, 20, 20, 32, 32, 1);
-	newEntity.addComponent<SpriteComponent>("tank-image");
+	Entity& tankEntity(manager.addEntity("tank"));
+	tankEntity.addComponent<TransformComponent>(0, 0, 20, 20, 32, 32, 1);
+	tankEntity.addComponent<SpriteComponent>("tank-image");
+
+	Entity& chopperEntity(manager.addEntity("chopper"));
+	chopperEntity.addComponent<TransformComponent>(240, 106, 0 , 0, 32, 32, 1);
+	chopperEntity.addComponent<SpriteComponent>("chopper-image", 2, 90, true, false);
 }
 
 void Game::processInput() {
