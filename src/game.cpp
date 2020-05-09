@@ -1,9 +1,13 @@
 #include <iostream>
 #include "./constants.h"
 #include "./game.h"
+#include "./assetManager.h"
+#include "./components/transformComponent.h"
+#include "./components/spriteComponent.h"
 #include "../lib/glm/glm.hpp"
 
 EntityManager manager;
+AssetManager* Game::assetManager = new AssetManager(&manager);
 SDL_Renderer* Game::renderer;
 
 Game::Game() {
@@ -43,9 +47,20 @@ void Game::initialize(int width, int height) {
 		std::cerr << "Error creating SDL renderer." << std::endl;
 		return;
 	}
+	
+	loadLevel(0);
 
 	isRunning = true;
 	return;
+}
+
+void Game::loadLevel(int levelNumber) {
+	std::string textureFilePath = "./assets/images/tank-big-right.png";
+	assetManager->addTexture("tank-image", textureFilePath.c_str());
+	
+	Entity& newEntity(manager.addEntity("tank"));
+	newEntity.addComponent<TransformComponent>(0, 0, 20, 20, 32, 32, 1);
+	newEntity.addComponent<SpriteComponent>("tank-image");
 }
 
 void Game::processInput() {
@@ -79,14 +94,18 @@ void Game::update() {
 	// sets the new ticks for the current frame to be used in the next pass
 	ticksLastFrame = SDL_GetTicks();
 	
-	// use deltaTime to update game objects
+	manager.update(deltaTime);
 }
 
 void Game::render() {
 	SDL_SetRenderDrawColor(renderer, 21, 21, 21, 255);
 	SDL_RenderClear(renderer);
 
-	
+	if (manager.hasNoEntities()) {
+		return;
+	}
+
+	manager.render();
 
 	SDL_RenderPresent(renderer);
 }

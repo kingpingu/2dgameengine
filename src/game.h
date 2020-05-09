@@ -8,6 +8,8 @@
 #include "./component.h"
 #include "./entityManager.h"
 
+class AssetManager;
+
 class Game {
 	private:
 		bool isRunning;
@@ -19,6 +21,7 @@ class Game {
 		int ticksLastFrame;
 		bool getIsRunning() const;
 		static SDL_Renderer *renderer;
+		static AssetManager* assetManager;
 		void loadLevel(int levelNumber);
 		void initialize(int width, int height);
 		void processInput();
