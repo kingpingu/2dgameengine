@@ -8,6 +8,7 @@
 #include "./components/colliderComponent.h"
 #include "./components/keyboardControlComponent.h"
 #include "./components/textLabelComponent.h"
+#include "./components/projectileEmitterComponent.h"
 #include "../lib/glm/glm.hpp"
 
 EntityManager manager;
@@ -75,6 +76,7 @@ void Game::loadLevel(int levelNumber) {
 	assetManager->addTexture("radar-image", std::string("./assets/images/radar.png").c_str());
 	assetManager->addTexture("jungle-tiletexture", std::string("./assets/tilemaps/jungle.png").c_str());
 	assetManager->addTexture("heliport-image", std::string("./assets/images/heliport.png").c_str());
+	assetManager->addTexture("projectile-image", std::string("./assets/images/bullet-enemy.png").c_str());
 	assetManager->addFont("charriot-font", std::string("./assets/fonts/charriot.ttf").c_str(), 14);
 
 	map = new Map("jungle-tiletexture", 2, 32);
@@ -86,9 +88,15 @@ void Game::loadLevel(int levelNumber) {
 	player.addComponent<ColliderComponent>("PLAYER", 240, 106, 32, 32);
 
 	Entity& tankEntity(manager.addEntity("tank", ENEMY_LAYER));
-	tankEntity.addComponent<TransformComponent>(150, 495, 25, 0, 32, 32, 1);
+	tankEntity.addComponent<TransformComponent>(150, 495, 0, 0, 32, 32, 1);
 	tankEntity.addComponent<SpriteComponent>("tank-image");
 	tankEntity.addComponent<ColliderComponent>("ENEMY", 150, 495, 32, 32);
+
+	Entity& projectile(manager.addEntity("projectile", PROJECTILE_LAYER));
+	projectile.addComponent<TransformComponent>(150 + 16, 495 + 16, 0, 0 , 4, 4, 1);
+	projectile.addComponent<SpriteComponent>("projectile-image");
+	projectile.addComponent<ColliderComponent>("PROJECTILE", 150 + 16, 495 + 16, 4, 4);
+	projectile.addComponent<ProjectileEmitterComponent>(200, 270, 500, true);
 
 	Entity& heliport(manager.addEntity("heliport", OBSTACLE_LAYER));
 	heliport.addComponent<TransformComponent>(470, 420, 0, 0, 32, 32, 1);
@@ -121,8 +129,14 @@ void Game::processInput() {
 }
 
 void Game::update() {
-	// wait until 16ms has elapsed since the last frame
-	while (!SDL_TICKS_PASSED(SDL_GetTicks(), ticksLastFrame + FRAME_TARGET_TIME));
+	// wait until 16ms has elapsed since the last frame	
+	int time_to_wait = FRAME_TARGET_TIME - (SDL_GetTicks() - ticksLastFrame);
+
+	if (time_to_wait > 0 && time_to_wait <= FRAME_TARGET_TIME) {
+		SDL_Delay(time_to_wait);
+	}
+
+	// while (!SDL_TICKS_PASSED(SDL_GetTicks(), ticksLastFrame + FRAME_TARGET_TIME));
 	
 	// delta time is the difference in ticks from last frame converted to seconds
 	float deltaTime = (SDL_GetTicks() - ticksLastFrame) / 1000.0f;
@@ -172,6 +186,10 @@ void Game::checkCollisions() {
 		processGameOver();
 	}
 
+	if (collisionType == PLAYER_PROJECTILE_COLLISION) {
+		processGameOver();
+	}
+	
 	if (collisionType == PLAYER_LEVEL_COMPLETE_COLLISION) {
 		processNextLevel(1);
 	}
