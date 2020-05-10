@@ -21,6 +21,7 @@ class EntityManager {
 		void listAllEntities() const;
 		Entity& addEntity(std::string entityName, LayerType layer);
 		CollisionType checkCollisions() const;
+		Entity* getEntityByName(std::string entityName);
 };
 
 #endif

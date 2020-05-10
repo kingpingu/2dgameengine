@@ -99,3 +99,13 @@ void EntityManager::listAllEntities() const {
 		i++;
 	}
 }
+
+Entity* EntityManager::getEntityByName(std::string entityName) {
+	for (auto* entity: entities) {
+		if (entity->name.compare(entityName) == 0) {
+			return entity;
+		}
+	}
+
+	return NULL;
+}
