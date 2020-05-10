@@ -23,11 +23,13 @@ class Game {
 		static SDL_Renderer *renderer;
 		static AssetManager* assetManager;
 		static SDL_Event event;
+		static SDL_Rect camera;
 		void loadLevel(int levelNumber);
 		void initialize(int width, int height);
 		void processInput();
 		void update();
 		void render();
+		void handleCameraMovement();
 		void destroy();
 };
 

@@ -21,7 +21,7 @@ class SpriteComponent: public Component {
 		std::string currentAnimationName;
 		unsigned int animationIndex = 0;
 
-		public:
+	public:
 		SDL_RendererFlip spriteFlip = SDL_FLIP_NONE;
 
 		SpriteComponent(std::string assetTextureId) {
@@ -86,8 +86,8 @@ class SpriteComponent: public Component {
 			}
 			sourceRectangle.y = animationIndex * transform->height;
 
-			destinationRectangle.x = static_cast<int>(transform->position.x);
-			destinationRectangle.y = static_cast<int>(transform->position.y);
+			destinationRectangle.x = static_cast<int>(transform->position.x) - (isFixed ? 0 : Game::camera.x);
+			destinationRectangle.y = static_cast<int>(transform->position.y) - (isFixed ? 0: Game::camera.y);
 			destinationRectangle.w = transform->width * transform->scale;
 			destinationRectangle.h = transform->height * transform->scale;
 		}

@@ -9,7 +9,6 @@ class Map {
 		int scale;
 		int tileSize;
 
-
 	public:
 		Map(std::string textureId, int scale, int tileSize);
 		~Map();
