@@ -20,6 +20,7 @@ class EntityManager {
 		unsigned int getEntitiesCount() const;
 		void listAllEntities() const;
 		Entity& addEntity(std::string entityName, LayerType layer);
+		CollisionType checkCollisions() const;
 };
 
 #endif

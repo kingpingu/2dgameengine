@@ -29,8 +29,11 @@ class Game {
 		void processInput();
 		void update();
 		void render();
-		void handleCameraMovement();
 		void destroy();
+		void handleCameraMovement();
+		void checkCollisions();
+		void processNextLevel(int levelNumber);
+		void processGameOver();
 };
 
 #endif

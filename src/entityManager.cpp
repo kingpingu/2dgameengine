@@ -1,5 +1,7 @@
 #include <iostream>
 #include "./entityManager.h"
+#include "./collision.h"
+#include "./components/colliderComponent.h"
 
 void EntityManager::clearData() {
 	for (auto& entity: entities) {
@@ -23,6 +25,38 @@ void EntityManager::render() {
 			entity->render();
 		}
 	}
+}
+
+CollisionType EntityManager::checkCollisions() const {
+	for (int i = 0; i < entities.size() - 1; i++) {
+		auto& thisEntity = entities[i];
+		if (thisEntity->hasComponent<ColliderComponent>()) {
+			ColliderComponent* thisCollider = thisEntity->getComponent<ColliderComponent>();
+			for (int j = i + 1; j < entities.size(); j++) {
+				auto& otherEntity = entities[j];
+				if (thisEntity->name.compare(otherEntity->name) != 0 && otherEntity->hasComponent<ColliderComponent>()) {
+					ColliderComponent* otherCollider = otherEntity->getComponent<ColliderComponent>();
+					if (Collision::checkRectangleCollision(thisCollider->collider, otherCollider->collider)) {
+						if (thisCollider->colliderTag.compare("PLAYER") == 0 && otherCollider->colliderTag.compare("ENEMY") == 0) {
+							return PLAYER_ENEMY_COLLISION;
+						}
+						if (thisCollider->colliderTag.compare("PLAYER") == 0 && otherCollider->colliderTag.compare("PROJECTILE") == 0) {
+							return PLAYER_PROJECTILE_COLLISION;
+						}
+						if (thisCollider->colliderTag.compare("ENEMY") == 0 && otherCollider->colliderTag.compare("PROJECTILE") == 0) {
+							return ENEMY_PROJECTILE_COLLISION;
+						}
+						if (thisCollider->colliderTag.compare("PLAYER") == 0 && otherCollider->colliderTag.compare("LEVEL_COMPLETE") == 0) {
+							return PLAYER_LEVEL_COMPLETE_COLLISION;
+						}
+					}
+				}
+			}
+			for (auto& otherEntity: entities) {
+			}
+		}
+	}
+	return NO_COLLISION;
 }
 
 Entity& EntityManager::addEntity(std::string entityName, LayerType layer) {

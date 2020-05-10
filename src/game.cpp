@@ -5,6 +5,7 @@
 #include "./map.h"
 #include "./components/transformComponent.h"
 #include "./components/spriteComponent.h"
+#include "./components/colliderComponent.h"
 #include "./components/keyboardControlComponent.h"
 #include "../lib/glm/glm.hpp"
 
@@ -66,6 +67,7 @@ void Game::loadLevel(int levelNumber) {
 	assetManager->addTexture("chopper-image", std::string("./assets/images/chopper-spritesheet.png").c_str());
 	assetManager->addTexture("radar-image", std::string("./assets/images/radar.png").c_str());
 	assetManager->addTexture("jungle-tiletexture", std::string("./assets/tilemaps/jungle.png").c_str());
+	assetManager->addTexture("heliport-image", std::string("./assets/images/heliport.png").c_str());
 
 	map = new Map("jungle-tiletexture", 2, 32);
 	map->loadMap("./assets/tilemaps/jungle.map", 25, 20);
@@ -73,11 +75,17 @@ void Game::loadLevel(int levelNumber) {
 	player.addComponent<TransformComponent>(240, 106, 0 , 0, 32, 32, 1);
 	player.addComponent<SpriteComponent>("chopper-image", 2, 90, true, false);
 	player.addComponent<KeyboardControlComponent>("up", "right", "down", "left", "space");
+	player.addComponent<ColliderComponent>("PLAYER", 240, 106, 32, 32);
 
 	Entity& tankEntity(manager.addEntity("tank", ENEMY_LAYER));
-	tankEntity.addComponent<TransformComponent>(0, 0, 20, 20, 32, 32, 1);
+	tankEntity.addComponent<TransformComponent>(150, 495, 25, 0, 32, 32, 1);
 	tankEntity.addComponent<SpriteComponent>("tank-image");
+	tankEntity.addComponent<ColliderComponent>("ENEMY", 150, 495, 32, 32);
 
+	Entity& heliport(manager.addEntity("heliport", OBSTACLE_LAYER));
+	heliport.addComponent<TransformComponent>(470, 420, 0, 0, 32, 32, 1);
+	heliport.addComponent<SpriteComponent>("heliport-image");
+	heliport.addComponent<ColliderComponent>("LEVEL_COMPLETE", 470, 420, 32, 32);
 	
 	Entity& radarEntity(manager.addEntity("radar", UI_LAYER));
 	radarEntity.addComponent<TransformComponent>(720, 15, 0 , 0, 64, 64, 1);
@@ -117,6 +125,8 @@ void Game::update() {
 	manager.update(deltaTime);
 
 	handleCameraMovement();
+
+	checkCollisions();
 }
 
 void Game::render() {
@@ -142,6 +152,28 @@ void Game::handleCameraMovement() {
 	camera.y = camera.y < 0 ? 0 : camera.y;
 	camera.x = camera.x > camera.w ? camera.w : camera.x;
 	camera.y = camera.y > camera.h ? camera.h : camera.y;
+}
+
+void Game::checkCollisions() {
+	CollisionType collisionType = manager.checkCollisions();
+
+	if (collisionType == PLAYER_ENEMY_COLLISION) {
+		processGameOver();
+	}
+
+	if (collisionType == PLAYER_LEVEL_COMPLETE_COLLISION) {
+		processNextLevel(1);
+	}
+}
+
+void Game::processNextLevel(int levelNumber) {
+	std::cout << "Next Level" << std::endl;
+	isRunning = false;
+}
+
+void Game::processGameOver() {
+	std::cout << "Game Over" << std::endl;
+	isRunning = false;
 }
 
 void Game::destroy() {
